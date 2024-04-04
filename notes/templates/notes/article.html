@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Article</title>
+    </head>
+    <body>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'notes/bulma.min.css' %}">
+        <link rel="stylesheet" href="{% static 'notes/style.css' %}">
+        <div class="block">
+            <nav class="navbar  has-shadow" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                    <div class="navbar-item">
+                        <strong>NoteSite</strong>
+                    </div>
+                    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
+                <div id="navbarBasicExample" class="navbar-menu">
+                    <div class="navbar-start">
+                        <a class="navbar-item" href="{% url 'notes:index' %}">Home</a>
+                        <a class="navbar-item" href="/admin">Administration</a>
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">More</a>
+                            <div class="navbar-dropdown">
+                                <a class="navbar-item">About</a>
+                                <a class="navbar-item is-selected">Jobs</a>
+                                <a class="navbar-item">Contact</a>
+                                <hr class="navbar-divider">
+                                <a class="navbar-item">Report an issue</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="navbar-end">
+                        <div class="navbar-item">
+                            <div class="buttons">
+                                <a class="button is-primary"><strong>Sign up</strong></a>
+                                <a class="button is-light">Log in</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="columns">
+            <div class="column is-two-thirds">
+                <div class="block">
+                    <nav class="level">
+                        <!-- Left side -->
+                        <div class="level-left">
+                            <div class="level-item">
+                                <div class="field has-addons">
+                                  <p class="control">
+                                    <input class="input" type="text" placeholder="Find a post" />
+                                  </p>
+                                  <p class="control">
+                                    <button class="button">Search</button>
+                                  </p>
+                                </div>
+                              </div>
+                        </div>
+                        <!-- Right side -->
+                        <div class="level-right">
+                            <p class="level-item"><button class="button is-primary" onclick="create_you('{{article.id}}')">+You</button></p>
+                            <p class="level-item"><button class="button is-info" onclick="create_ai('{{article.id}}')">+AI</button></p>
+                        </div>
+                    </nav>
+                </div>
+                <div class="box">
+                    <div class="content">
+                        <h1>{{article.title}}</h1>
+                        <h3>{{ article.subtitle }}</h3>
+                        <h6>{{ article.author }}</h6>
+                        <p id="article-content">
+                            {{article.content}}
+                        </p>
+                        <br />
+                        <p>pub date: {{article.pub_date}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="column auto">
+                {% for notes in article.notes_set.all %}
+                <div class="box">
+                    <article class="media">
+                        <div class="media-content">
+                            <div class="content">
+                                {% if notes.reference_text|length == 0 %}
+                                    <span class="nite-writer-pen">{{ notes.notes_text }}</span>
+                                {% else %}
+                                    <span>[{{ notes.reference_text }}]:</span>
+                                    <span class="nite-writer-pen">{{ notes.notes_text }}</span>
+                                {% endif %}
+                            </div>
+                            <nav class="level is-mobile">
+                                <div class="level-left">
+                                    <a class="level-item">
+                                        <span>{{ notes.create_user }}</span>
+                                    </a>
+                                    <a class="level-item">
+                                        <span>{{ notes.update_date }}</span>
+                                    </a>
+                                </div>
+                                <div class="level-right">
+                                    <a class="level-item" href="{% url 'notes:update' notes.id %}">
+                                        <span class="icon is-small"><i class="fas fa-edit"></i></span>
+                                    </a>
+                                    <a class="level-item" href="{% url 'notes:delete' notes.id %}">
+                                        <span class="icon is-small"><i class="fas fa-remove"></i></span>
+                                    </a>        
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="media-right">
+                                {% if notes.type %}
+                                    <span class="tag is-info">AI</span>
+                                {% else %}
+                                    <span class="tag is-primary">You</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </article>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        {% for notes in article.notes_set.all %}
+        {% if notes.reference_text|length > 0 %}
+        <div class="ref-data" ref-text="{{ notes.reference_text }}"></div>
+        {% endif %}
+        {% endfor %}
+
+        <script src="{% static 'notes/093badad91.js' %}" crossorigin="anonymous"></script>
+        <script src="{% static 'notes/main.js' %}"></script>
+        <script>
+            let ref_texts = document.querySelectorAll(".ref-data");
+            ref_texts.forEach(function(ref) {
+                let ref_text = ref.getAttribute("ref-text")
+                find2mark(ref_text,"article-content")
+            });
+        </script>
+    </body>
+</html>
